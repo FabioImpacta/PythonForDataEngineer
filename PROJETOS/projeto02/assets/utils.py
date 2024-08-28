@@ -16,7 +16,7 @@ def read_metadado(meta_path):
         "tipos_originais" : dict(zip(list(meta["cols_originais"]),list(meta["tipo_original"]))),
         "tipos_formatted" : dict(zip(list(meta["cols_renamed"]),list(meta["tipo_formatted"]))),
         "cols_chaves" : list(meta.loc[meta["key"] == 1]["cols_originais"]),
-        "null_tolerance" : dict(zip(list(meta["cols_originais"]), list(meta["raw_null_tolerance"]))),
+        "null_tolerance" : dict(zip(list(meta["cols_renamed"]), list(meta["raw_null_tolerance"]))),
         "std_str" : list(meta.loc[meta["std_str"] == 1]["cols_renamed"]),
         "corrige_hr" : list(meta.loc[meta["corrige_hr"] == 1]["cols_renamed"])
         }
@@ -53,7 +53,7 @@ def convert_data_type(df, tipos_map):
     INPUT: Pandas DataFrame, dicionário de colunas como chave e seus tipos como valores
     OUTPUT: Pandas DataFrame com novos nomes
     '''
-    data =df.copy()
+    data = df.copy()
     for col in tipos_map.keys():
         tipo = tipos_map[col]
         if tipo == "int":
@@ -62,6 +62,8 @@ def convert_data_type(df, tipos_map):
             data[col] = data[col].astype(float)
         elif tipo == "datetime":
             data[col] = pd.to_datetime(data[col])
+        elif tipo == "string":
+            data[col] = data[col].astype(str)
     return data
 
 
@@ -98,12 +100,13 @@ def keys_check(df, cols_chaves):
     INPUT: ???????????????????????????
     OUTPUT: ???????????????????????????
     '''
+    #colocar log info
     pass
 
 # Funções auxiliares -------------------------------------------
 
 def padroniza_str(obs):
-    return re.sub('[^A-Za-z0-9]+', '', str(obs).lower())
+    return re.sub('[^A-Za-z0-9]+', '', obs.upper())
 
 
 def corrige_hora(hr_str, dct_hora = {1:"000?",2:"00?",3:"0?",4:"?"}):
